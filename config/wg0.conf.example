@@ -1,0 +1,13 @@
+# Plantilla de referencia del servidor WireGuard (SIN claves reales).
+# El archivo real se genera con scripts/02-configurar-servidor.sh
+# y vive en /etc/wireguard/wg0.conf (fuera del repositorio).
+
+[Interface]
+Address = 10.0.0.1/24
+ListenPort = 51820
+PrivateKey = <CLAVE_PRIVADA_DEL_SERVIDOR>   # se genera localmente, nunca se sube a GitHub
+
+# --- Un bloque [Peer] por cada cliente autorizado ---
+# [Peer]
+# PublicKey = <CLAVE_PUBLICA_DEL_CLIENTE>
+# AllowedIPs = 10.0.0.2/32
