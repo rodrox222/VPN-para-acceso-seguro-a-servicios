@@ -1,5 +1,5 @@
 
-# CLI002 — Automatización de la generación y registro de clientes WireGuard (HU03)
+# ADM002 — Automatización de la generación y registro de clientes WireGuard (HU03)
 
 **Requerimiento:** Automatizar mediante un script Bash (`agregar-cliente.sh`) la creación de claves, asignación dinámica de IP libres en la subred `10.0.0.0/24`, generación del archivo de configuración `.conf` del cliente, registro automático del bloque `[Peer]` en el servidor y sincronización en vivo mediante `wg syncconf` sin interrumpir el servicio ni permitir registros duplicados.
 **Sprint:** 1 · **Depende de:** HU01 (`wg0` activa en el servidor) y HU02 (Conexión manual de clientes)
