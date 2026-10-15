@@ -63,7 +63,7 @@ else
     SERVER_PUB_KEY=$(wg show wg0 public-key)
 fi
 
-SERVER_ENDPOINT="192.168.23.137:51820"
+SERVER_ENDPOINT="192.168.1.18:51820"
 
 echo "[INFO] Nombre de cliente: $CLIENT_NAME"
 echo "[INFO] IP asignada automáticamente: $CLIENT_IP"
