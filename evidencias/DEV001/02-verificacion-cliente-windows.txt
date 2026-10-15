@@ -1,0 +1,5 @@
+=== PRUEBAS DE EXTREMO A EXTREMO DESDE CLIENTE WINDOWS ===
+1. Ping al servidor VPN (10.0.0.1): Exitoso (0% perdidas)
+2. Aislamiento de interfaz fisica: Bloqueado (Connection refused)
+3. Consumo de API REST via VPN (10.0.0.1:5000/api/status): HTTP 200 OK
+Client IP detectada: 10.0.0.2
