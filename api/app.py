@@ -17,7 +17,7 @@ def index():
 @app.route('/api/status', methods=['GET'])
 def status():
     return jsonify({
-        "status": "OK",
+        "status": "ok",
         "message": "Acceso seguro verificado a traves del tunel WireGuard",
         "hostname": socket.gethostname(),
         "server_ip": "10.0.0.1",
