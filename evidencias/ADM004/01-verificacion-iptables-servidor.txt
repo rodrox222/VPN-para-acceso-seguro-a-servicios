@@ -1,0 +1,42 @@
+=== [HU-06 / ADM004] VERIFICACION DE FIREWALL IPTABLES Y AISLAMIENTO DE RED ===
+Fecha: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+=== 1. ESTADO DE IP FORWARDING ===
+net.ipv4.ip_forward = 1
+
+=== 2. REGLAS IPTABLES CADENA INPUT ===
+Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+num   pkts bytes target     prot opt in     out     source               destination         
+1        6   339 ACCEPT     tcp  --  wg0    *       10.0.0.0/24          0.0.0.0/0            tcp dpt:5000
+2        7   467 ACCEPT     tcp  --  lo     *       0.0.0.0/0            0.0.0.0/0            tcp dpt:5000
+3        3   156 DROP       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:5000
+4       26  2292 ACCEPT     udp  --  *      *       0.0.0.0/0            0.0.0.0/0            udp dpt:51820
+
+=== 3. REGLAS IPTABLES CADENA FORWARD ===
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+num   pkts bytes target     prot opt in     out     source               destination         
+1        0     0 ACCEPT     tcp  --  wg0    *       10.0.0.0/24          0.0.0.0/0            tcp dpt:5000
+2        0     0 DROP       tcp  --  !wg0   *       0.0.0.0/0            0.0.0.0/0            tcp dpt:5000
+
+=== 4. SERVICIO DE PERSISTENCIA ===
+○ telematica-firewall.service - Reglas iptables de aislamiento para API REST sobre WireGuard (ADM004)
+     Loaded: loaded (/etc/systemd/system/telematica-firewall.service; enabled; vendor preset: enabled)
+     Active: inactive (dead)
+
+=== 5. PRUEBA DE ACCESO PERMITIDO (VPN) ===
+HTTP/1.1 200 OK
+Server: gunicorn
+Date: Thu, 15 Oct 2026 13:58:01 GMT
+Connection: close
+Content-Type: application/json
+Content-Length: 201
+
+{"client_ip":"10.0.0.1","hostname":"vpn-servidor","message":"Acceso seguro verificado a traves del tunel WireGuard","server_ip":"10.0.0.1","status":"OK","timestamp":"2026-10-15T13:58:01.099496+00:00"}
+
+
+=== 6. PRUEBA DE BLOQUEO EN INTERFAZ FISICA ===
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (7) Failed to connect to 192.168.1.18 port 5000 after 4 ms: Connection refused
+[OK] Paquete descartado por DROP

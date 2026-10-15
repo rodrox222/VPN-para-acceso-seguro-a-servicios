@@ -1,0 +1,8 @@
+=== PRUEBAS DE SEGURIDAD Y CONTROL DE ACCESO DESDE CLIENTE REMOTO (WINDOWS) ===
+1. Acceso via tunel WireGuard (http://10.0.0.1:5000/api/status):
+   - Resultado esperado: HTTP/1.1 200 OK (Regla ACCEPT en wg0)
+   - Resultado obtenido: HTTP/1.1 200 OK - Acceso permitido.
+
+2. Acceso directo a interfaz publica/fisica (http://192.168.1.18:5000/api/status):
+   - Resultado esperado: Timeout / Paquete descartado (Regla DROP)
+   - Resultado obtenido: curl: (28) Failed to connect to 192.168.1.18 port 5000: Connection timed out.
