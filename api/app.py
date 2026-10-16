@@ -5,13 +5,20 @@ from threading import RLock
 import re
 import socket
 
-from repository import InMemoryRepository
+import os
+import psycopg
+
+if os.environ.get("DATABASE_URL"):
+    from repository_pg import PostgresRepository
+    repo = PostgresRepository(os.environ["DATABASE_URL"])
+else:
+    from repository import InMemoryRepository
+    repo = InMemoryRepository()
 
 app = Flask(__name__)
 app.json.ensure_ascii = False   # tildes legibles en las respuestas
 app.json.sort_keys = False      # conservar el orden de los campos
 
-repo = InMemoryRepository()
 LOCK = RLock()  # verificar + escribir debe ser atómico entre hilos de Gunicorn
 
 PRIORIDADES = ("baja", "media", "alta")
@@ -318,6 +325,18 @@ def eliminar_ticket(tid):
         repo.eliminar_ticket(tid)
     return "", 204
 
+# ---
+@app.errorhandler(psycopg.errors.UniqueViolation)
+def _unico(e):
+    return jsonify({"error": "email_duplicado", "mensaje": "Ya existe un usuario con ese email"}), 409
+
+@app.errorhandler(psycopg.errors.ForeignKeyViolation)
+def _fk_violation(e):
+    from flask import request
+    if request.method == 'DELETE':
+        return jsonify({"error": "conflicto", "mensaje": "El usuario tiene tickets asociados"}), 409
+    return jsonify({"error": "validacion", "mensaje": "El usuario_id no existe"}), 422
+# ---------------------------
 
 if __name__ == '__main__':
     app.run(host='10.0.0.1', port=5000)

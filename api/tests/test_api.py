@@ -169,3 +169,22 @@ def test_no_se_elimina_usuario_con_tickets_activos(client):
     client.patch("/api/tickets/1", json={"estado": "cerrado"})
     assert client.delete("/api/usuarios/1").status_code == 204
     assert client.get("/api/tickets").get_json()["total"] == 0  # historial eliminado en cascada
+
+def test_persistencia_postresql():
+    """Prueba requerida en HU09: El dato sobrevive a la destrucción del repositorio"""
+    import os
+    if not os.environ.get("DATABASE_URL"):
+        import pytest
+        pytest.skip("Se requiere DATABASE_URL para probar persistencia real")
+    
+    from repository_pg import PostgresRepository
+    
+    repo1 = PostgresRepository(os.environ["DATABASE_URL"])
+    repo1.reset()
+    creado = repo1.crear_usuario({"nombre": "Prueba", "email": "test@db.com", "rol": "cliente"})
+    
+    repo2 = PostgresRepository(os.environ["DATABASE_URL"])
+    recuperado = repo2.buscar_usuario_por_email("test@db.com")
+    
+    assert recuperado is not None
+    assert recuperado["id"] == creado["id"]
