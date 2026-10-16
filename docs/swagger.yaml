@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: API REST telemática de gestión
+  description: Documentación de la API protegida tras la VPN WireGuard.
+  version: 1.0.0
+paths:
+  /api/tickets/{tid}:
+    parameters:
+      - name: tid
+        in: path
+        required: true
+        description: ID único del ticket
+        schema:
+          type: integer
+
+    put:
+      summary: Reemplazo completo de un ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Ticket actualizado exitosamente
+        '409':
+          description: Conflicto (El ticket está cerrado y no se puede modificar)
+        '422':
+          description: Error de validación en el usuario_id o cuerpo del mensaje
+
+    patch:
+      summary: Modificación parcial de un ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Ticket modificado exitosamente
+        '409':
+          description: El ticket está cerrado
+        '422':
+          description: Datos inválidos
+
+    delete:
+      summary: Eliminar un ticket por ID
+      responses:
+        '204':
+          description: Ticket eliminado correctamente
+        '409':
+          description: Conflicto por llaves foráneas o estado del registro
