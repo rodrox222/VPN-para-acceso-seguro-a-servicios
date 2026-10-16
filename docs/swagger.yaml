@@ -1,0 +1,250 @@
+openapi: 3.0.0
+info:
+  title: API REST Telemática de Gestión - Grupo 35
+  description: Documentación de la API protegida tras el túnel VPN WireGuard.
+  version: 1.0.0
+
+paths:
+  /:
+    get:
+      summary: Endpoint raíz / verificación de estado
+      responses:
+        '200':
+          description: Servicio online y cliente verificado
+
+  /api/status:
+    get:
+      summary: Estado detallado de la conexión VPN
+      responses:
+        '200':
+          description: Acceso seguro verificado a través del túnel WireGuard
+
+  /api/echo:
+    get:
+      summary: Eco de datos de la petición (GET)
+      responses:
+        '200':
+          description: Datos recibidos devueltos
+    post:
+      summary: Eco de datos de la petición (POST)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Datos recibidos devueltos
+
+  /api/usuarios:
+    get:
+      summary: Listar todos los usuarios
+      responses:
+        '200':
+          description: Lista de usuarios obtenida exitosamente
+    post:
+      summary: Crear un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+                - email
+              properties:
+                nombre:
+                  type: string
+                  example: "Juan Pérez"
+                email:
+                  type: string
+                  example: "juan@example.com"
+                rol:
+                  type: string
+                  enum: [cliente, tecnico]
+                  default: "cliente"
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+        '409':
+          description: Email duplicado
+        '422':
+          description: Error de validación en los datos ingresados
+
+  /api/usuarios/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: ID único del usuario
+        schema:
+          type: integer
+    get:
+      summary: Obtener usuario por ID
+      responses:
+        '200':
+          description: Usuario encontrado
+        '404':
+          description: Usuario no encontrado
+    put:
+      summary: Reemplazo completo de un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+        '404':
+          description: Usuario no encontrado
+        '409':
+          description: Email duplicado
+        '422':
+          description: Error de validación
+    patch:
+      summary: Modificación parcial de un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Usuario modificado exitosamente
+        '404':
+          description: Usuario no encontrado
+        '409':
+          description: Email duplicado
+        '422':
+          description: Error de validación
+    delete:
+      summary: Eliminar un usuario
+      responses:
+        '204':
+          description: Usuario eliminado exitosamente
+        '404':
+          description: Usuario no encontrado
+        '409':
+          description: El usuario tiene tickets activos sin cerrar
+
+  /api/tickets:
+    get:
+      summary: Listar tickets con posibilidad de filtrado
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [abierto, en_progreso, cerrado]
+        - name: prioridad
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [baja, media, alta]
+        - name: usuario_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de tickets
+        '422':
+          description: Filtros de búsqueda inválidos
+    post:
+      summary: Crear un nuevo ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - titulo
+                - usuario_id
+              properties:
+                titulo:
+                  type: string
+                  example: "Fallo en conexión VPN"
+                descripcion:
+                  type: string
+                  example: "No es posible enrutar el tráfico por wg0"
+                prioridad:
+                  type: string
+                  enum: [baja, media, alta]
+                  default: "media"
+                estado:
+                  type: string
+                  enum: [abierto, en_progreso, cerrado]
+                  default: "abierto"
+                usuario_id:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Ticket creado exitosamente
+        '422':
+          description: El usuario asignado no existe o faltan campos obligatorios
+
+  /api/tickets/{tid}:
+    parameters:
+      - name: tid
+        in: path
+        required: true
+        description: ID único del ticket
+        schema:
+          type: integer
+    get:
+      summary: Obtener un ticket por ID
+      responses:
+        '200':
+          description: Ticket encontrado
+        '404':
+          description: Ticket no encontrado
+    put:
+      summary: Reemplazo completo de un ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Ticket actualizado exitosamente
+        '404':
+          description: Ticket no encontrado
+        '409':
+          description: Conflicto (El ticket está cerrado y no se puede modificar)
+        '422':
+          description: Error de validación en los datos
+    patch:
+      summary: Modificación parcial de un ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Ticket modificado exitosamente
+        '404':
+          description: Ticket no encontrado
+        '409':
+          description: El ticket está cerrado y no se puede modificar
+        '422':
+          description: Error de validación
+    delete:
+      summary: Eliminar un ticket por ID
+      responses:
+        '204':
+          description: Ticket eliminado correctamente
+        '404':
+          description: Ticket no encontrado
