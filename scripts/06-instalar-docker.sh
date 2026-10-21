@@ -61,4 +61,4 @@ echo
 echo "[AVISO] Docker activa el reenvío de paquetes (IP forwarding) y puede cambiar la política"
 echo "        de la cadena FORWARD de iptables. Revísalo con:"
 echo "          sysctl net.ipv4.ip_forward ; sudo iptables -S FORWARD | head -3"
-echo "[SIGUIENTE] sudo ./scripts/05-orden-arranque-docker-wg.sh"
+echo "[SIGUIENTE] sudo ./scripts/07-orden-arranque-docker-wg.sh"

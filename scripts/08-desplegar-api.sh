@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 [[ -f docker-compose.yml ]] || { echo "[ERROR] No encuentro docker-compose.yml en $(pwd)" >&2; exit 1; }
-command -v docker >/dev/null || { echo "[ERROR] Docker no está instalado (scripts/04-instalar-docker.sh)." >&2; exit 1; }
+command -v docker >/dev/null || { echo "[ERROR] Docker no está instalado (scripts/06-instalar-docker.sh)." >&2; exit 1; }
 
 if [[ ! -f .env ]]; then
   cp .env.example .env

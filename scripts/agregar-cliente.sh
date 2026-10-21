@@ -13,6 +13,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 CLIENT_NAME=$1
+: "${WG_ENDPOINT:?Define WG_ENDPOINT=IP_PUBLICA:51820 (ver docs/DEV006)}"
 SERVER_CONF="/etc/wireguard/wg0.conf"
 SERVER_PUB_KEY_FILE="/etc/wireguard/server_public.key"
 
@@ -97,7 +98,7 @@ else
     SERVER_PUB_KEY=$(wg show wg0 public-key)
 fi
 
-SERVER_ENDPOINT="192.168.23.137:51820"
+SERVER_ENDPOINT="${WG_ENDPOINT}"
 
 echo "[INFO] Concesión DHCP exitosa."
 echo "[INFO] Cliente: $CLIENT_NAME | IP asignada: $CLIENT_IP"
