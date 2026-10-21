@@ -25,6 +25,15 @@ echo "[INFO] Actualizando paquetes..."
 apt-get update
 apt-get -y upgrade
 
+# En Ubuntu 24.04 en adelante isc-dhcp-client pasó al repositorio "universe" (y está en desuso).
+# Las imágenes de AWS suelen traerlo habilitado; si no, se habilita aquí.
+if ! apt-cache show isc-dhcp-client >/dev/null 2>&1; then
+  echo "[INFO] isc-dhcp-client no está en los repositorios activos: habilitando 'universe'..."
+  apt-get install -y software-properties-common
+  add-apt-repository -y universe
+  apt-get update
+fi
+
 echo "[INFO] Instalando herramientas base..."
 apt-get install -y git curl ca-certificates openssl iproute2 iptables tcpdump iperf3 isc-dhcp-client
 
