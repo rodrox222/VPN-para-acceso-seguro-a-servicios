@@ -1,5 +1,8 @@
 #!/bin/bash
 # HU03 - Script Proxy DHCP con Switch Virtual y Mapeo de Subred
+# HU15 - Balanceo: asigna cada cliente (round-robin) a un servidor principal (S1/S2)
+#        y genera dos .conf (uno por servidor) para failover en el cliente.
+# Uso: sudo env WG_ENDPOINT=IP1:51820 WG_ENDPOINT_2=IP2:51820 WG_PUBKEY_2=<clave> ./agregar-cliente.sh <Nombre>
 
 if [ -z "$1" ]; then
     echo "Uso: $0 <NombreCliente>"
@@ -13,7 +16,9 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 CLIENT_NAME=$1
-: "${WG_ENDPOINT:?Define WG_ENDPOINT=IP_PUBLICA:51820 (ver docs/DEV006)}"
+: "${WG_ENDPOINT:?Define WG_ENDPOINT=IP_SERVIDOR1:51820}"
+: "${WG_ENDPOINT_2:?Define WG_ENDPOINT_2=IP_SERVIDOR2:51820}"
+: "${WG_PUBKEY_2:?Define WG_PUBKEY_2=clave publica del servidor 2}"
 SERVER_CONF="/etc/wireguard/wg0.conf"
 SERVER_PUB_KEY_FILE="/etc/wireguard/server_public.key"
 
@@ -107,20 +112,34 @@ wg genkey | tee "${CLIENT_NAME}_private.key" | wg pubkey > "${CLIENT_NAME}_publi
 CLIENT_PRIV_KEY=$(cat "${CLIENT_NAME}_private.key")
 CLIENT_PUB_KEY=$(cat "${CLIENT_NAME}_public.key")
 
-CONF_FILE="${CLIENT_NAME}.conf"
-cat <<EOF > "$CONF_FILE"
+# --- HU15: round-robin del servidor principal ---
+BAL_DIR="/var/lib/wg-balance"
+NEXT_FILE="$BAL_DIR/next"
+mkdir -p "$BAL_DIR"
+PRIMARIO=$(cat "$NEXT_FILE" 2>/dev/null || echo 1)
+[ "$PRIMARIO" = "2" ] || PRIMARIO=1
+
+# Genera un .conf: $1 archivo, $2 clave publica del servidor, $3 endpoint
+gen_conf() {
+cat <<EOF > "$1"
 [Interface]
 PrivateKey = $CLIENT_PRIV_KEY
 Address = $CLIENT_IP/32
 
 [Peer]
-PublicKey = $SERVER_PUB_KEY
-Endpoint = $SERVER_ENDPOINT
+PublicKey = $2
+Endpoint = $3
 AllowedIPs = 10.0.0.0/24
 PersistentKeepalive = 25
 EOF
+chmod 600 "$1"
+}
 
-chmod 600 "$CONF_FILE" "${CLIENT_NAME}_private.key"
+CONF_S1="${CLIENT_NAME}_wgS1.conf"
+CONF_S2="${CLIENT_NAME}_wgS2.conf"
+gen_conf "$CONF_S1" "$SERVER_PUB_KEY" "$SERVER_ENDPOINT"
+gen_conf "$CONF_S2" "$WG_PUBKEY_2" "$WG_ENDPOINT_2"
+chmod 600 "${CLIENT_NAME}_private.key"
 
 cat <<EOF >> "$SERVER_CONF"
 
@@ -132,7 +151,25 @@ EOF
 
 wg syncconf wg0 <(wg-quick strip wg0)
 
+# Avanzar el turno y dejar registro de la asignación
+echo $(( PRIMARIO == 1 ? 2 : 1 )) > "$NEXT_FILE"
+echo "$(date '+%F %T') $CLIENT_NAME $CLIENT_IP principal=S$PRIMARIO" >> "$BAL_DIR/asignaciones.log"
+
 echo "================================================================="
-echo "[ÉXITO] Cliente '$CLIENT_NAME' agregado (Protocolo DHCP + WireGuard)"
-echo " - Archivo generado: $CONF_FILE"
+echo "[ÉXITO] Cliente '$CLIENT_NAME' agregado (DHCP + WireGuard + balanceo)"
+echo " - IP: $CLIENT_IP"
+echo " - Servidor PRINCIPAL asignado: S$PRIMARIO"
+echo " - Archivos para el cliente: $CONF_S1  y  $CONF_S2"
+echo "   (en el cliente renombrar a wgS1.conf y wgS2.conf en /etc/wireguard/)"
+echo "-----------------------------------------------------------------"
+echo "Registrar el peer en el SERVIDOR 2 (copiar y pegar allá):"
+echo
+echo "sudo tee -a /etc/wireguard/wg0.conf > /dev/null <<'PEER'"
+echo
+echo "# Cliente: $CLIENT_NAME"
+echo "[Peer]"
+echo "PublicKey = $CLIENT_PUB_KEY"
+echo "AllowedIPs = $CLIENT_IP/32"
+echo "PEER"
+echo "sudo bash -c 'wg syncconf wg0 <(wg-quick strip wg0)'"
 echo "================================================================="
