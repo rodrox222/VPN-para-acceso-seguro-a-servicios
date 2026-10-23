@@ -1,6 +1,9 @@
 # wg-failover.ps1 - HU15 (ADM006): failover de cliente entre servidores VPN
 # Ejecutar en PowerShell COMO ADMINISTRADOR.
 # Requiere C:\wg\wgS1.conf y C:\wg\wgS2.conf (el nombre del archivo = nombre del tunel).
+# Uso:  .\wg-failover.ps1 [-Inicial wgS1|wgS2]   (el servidor principal lo indica agregar-cliente.sh)
+
+param([ValidateSet("wgS1","wgS2")][string]$Inicial = "wgS1")   # servidor principal asignado a este cliente
 
 $wg     = "C:\Program Files\WireGuard\wireguard.exe"
 $url    = "http://10.0.0.1:5000/api/status"
@@ -33,7 +36,7 @@ function Set-Tunel($de, $a) {
 
 $activo = Get-Activo
 if (-not $activo) {
-    $activo = "wgS1"
+    $activo = $Inicial
     Set-Tunel $null $activo
 }
 Write-Host ("{0} Tunel inicial: {1}" -f (Get-Date -Format "HH:mm:ss"), $activo)

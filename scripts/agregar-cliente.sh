@@ -22,7 +22,7 @@ CLIENT_NAME=$1
 SERVER_CONF="/etc/wireguard/wg0.conf"
 SERVER_PUB_KEY_FILE="/etc/wireguard/server_public.key"
 
-if [ -f "${CLIENT_NAME}.conf" ] || grep -q "# Cliente: $CLIENT_NAME$" "$SERVER_CONF"; then
+if [ -f "${CLIENT_NAME}_wgS1.conf" ] || grep -q "# Cliente: $CLIENT_NAME$" "$SERVER_CONF"; then
     echo "[ERROR] Cliente '$CLIENT_NAME' ya registrado."
     exit 1
 fi
@@ -159,6 +159,7 @@ echo "================================================================="
 echo "[ÉXITO] Cliente '$CLIENT_NAME' agregado (DHCP + WireGuard + balanceo)"
 echo " - IP: $CLIENT_IP"
 echo " - Servidor PRINCIPAL asignado: S$PRIMARIO"
+echo " - Iniciar el failover del cliente con:  .\\wg-failover.ps1 -Inicial wgS$PRIMARIO"
 echo " - Archivos para el cliente: $CONF_S1  y  $CONF_S2"
 echo "   (en el cliente renombrar a wgS1.conf y wgS2.conf en /etc/wireguard/)"
 echo "-----------------------------------------------------------------"
