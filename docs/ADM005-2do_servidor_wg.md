@@ -1,4 +1,4 @@
-# HU-14: Despliegue de Servidor WireGuard Secundario (Redundancia)
+# ADM005 (HU-14): Despliegue de Servidor WireGuard Secundario (Redundancia)
 
 ## Objetivo
 Desplegar un servidor WireGuard secundario, redundante e independiente en una máquina virtual local (simulando una segunda instancia en la nube). Este servidor cuenta con sus propias claves criptográficas, pero mantiene la misma estructura de direccionamiento interno y servicios (API REST) que el servidor principal, sentando las bases para el balanceo de carga (HU-15) y failover (HU-16).
