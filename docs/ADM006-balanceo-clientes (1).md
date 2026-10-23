@@ -137,9 +137,9 @@ Con `wgS1` y con `wgS2` activos por separado, `GET /api/status` responde `200 OK
 | Prueba | Acción | Resultado | Tiempo hasta recuperar la API |
 |---|---|---|---|
 | S1 -> S2 | `sudo wg-quick down wg0` en el servidor 1 | El watchdog cambia a `wgS2` y la API responde | **14,5 s** |
-| S2 -> S1 | `sudo wg-quick down wg0` en el servidor 2 | El watchdog cambia a `wgS1` y la API responde | **<COMPLETAR> s** |
+| S2 -> S1 | `sudo wg-quick down wg0` en el servidor 2 | El watchdog cambia a `wgS1` y la API responde | **13,5 s** |
 
-Prueba complementaria con `ping -t 10.0.0.1`: los tiempos de espera agotados duraron aproximadamente **<COMPLETAR> s** en la caída S1 -> S2 y **<COMPLETAR> s** en S2 -> S1, hasta recuperar la conectividad por el otro servidor.
+Prueba complementaria con `ping -t 10.0.0.1`: los tiempos de espera agotados duraron aproximadamente **12 s** en la caída S1 -> S2 y **10 s** en S2 -> S1, hasta recuperar la conectividad por el otro servidor.
 
 El tiempo total depende del umbral de 3 fallos, del intervalo de consulta y del tiempo de arranque del nuevo túnel (handshake).
 
