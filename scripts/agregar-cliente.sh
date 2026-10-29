@@ -163,14 +163,8 @@ echo " - Iniciar el failover del cliente con:  .\\wg-failover.ps1 -Inicial wgS$P
 echo " - Archivos para el cliente: $CONF_S1  y  $CONF_S2"
 echo "   (en el cliente renombrar a wgS1.conf y wgS2.conf en /etc/wireguard/)"
 echo "-----------------------------------------------------------------"
-echo "Registrar el peer en el SERVIDOR 2 (copiar y pegar allá):"
-echo
-echo "sudo tee -a /etc/wireguard/wg0.conf > /dev/null <<'PEER'"
-echo
-echo "# Cliente: $CLIENT_NAME"
-echo "[Peer]"
-echo "PublicKey = $CLIENT_PUB_KEY"
-echo "AllowedIPs = $CLIENT_IP/32"
-echo "PEER"
-echo "sudo bash -c 'wg syncconf wg0 <(wg-quick strip wg0)'"
+"$(dirname "$(readlink -f "$0")")/gestionar-peers.sh" sync || echo "[AVISO] S2 no sincronizado: ejecute 'sudo ./scripts/gestionar-peers.sh sync'"
 echo "================================================================="
+
+
+
