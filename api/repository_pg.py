@@ -20,7 +20,7 @@ class PostgresRepository:
     def __init__(self, dsn):
         self._pool = ConnectionPool(
             dsn, min_size=1, max_size=5, open=True,
-            kwargs={"row_factory": dict_row},
+            kwargs={"row_factory": dict_row, "autocommit": True},
         )
 
     def listar_usuarios(self):

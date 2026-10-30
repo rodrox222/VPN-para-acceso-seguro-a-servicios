@@ -24,3 +24,12 @@ CREATE TABLE tickets (
 
 CREATE INDEX tickets_usuario_idx ON tickets (usuario_id);
 CREATE INDEX tickets_estado_idx  ON tickets (estado);
+
+-- Usuarios semilla iniciales (claves: Tecnico123! y Cliente123!)
+INSERT INTO usuarios (nombre, email, rol, password_hash)
+SELECT 'Técnico Demo', 'tecnico@example.com', 'tecnico', 'pbkdf2:sha256:260000$saltdemo123$3a7ef76b1e29b7135b35fc50c8400a4d04c3ef4de866e2e4dcb9a2c9a775e863'
+WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE lower(email) = 'tecnico@example.com');
+
+INSERT INTO usuarios (nombre, email, rol, password_hash)
+SELECT 'Cliente Demo', 'cliente@example.com', 'cliente', 'pbkdf2:sha256:260000$saltdemo123$92ed0f9ca63b7342da08f5e1ef5dc9795be98e6ca18a3788bcbb3e1f9c38aa23'
+WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE lower(email) = 'cliente@example.com');
