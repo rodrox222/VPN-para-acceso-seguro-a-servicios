@@ -1,7 +1,7 @@
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
-COLS_USUARIO = ("nombre", "email", "rol")
+COLS_USUARIO = ("nombre", "email", "rol", "password_hash")
 COLS_TICKET = ("titulo", "descripcion", "prioridad", "estado", "usuario_id")
 
 def _fila(row):
@@ -41,8 +41,8 @@ class PostgresRepository:
     def crear_usuario(self, datos):
         with self._pool.connection() as conn:
             row = conn.execute(
-                "INSERT INTO usuarios (nombre, email, rol) "
-                "VALUES (%(nombre)s, %(email)s, %(rol)s) RETURNING *",
+                "INSERT INTO usuarios (nombre, email, rol, password_hash) "
+                "VALUES (%(nombre)s, %(email)s, %(rol)s, %(password_hash)s) RETURNING *",
                 datos,
             ).fetchone()
         return _fila(row)

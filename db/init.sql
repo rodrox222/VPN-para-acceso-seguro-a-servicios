@@ -3,11 +3,13 @@ CREATE TABLE usuarios (
     nombre         VARCHAR(100) NOT NULL CHECK (char_length(nombre) BETWEEN 2 AND 100),
     email          VARCHAR(120) NOT NULL,
     rol            TEXT NOT NULL DEFAULT 'cliente' CHECK (rol IN ('cliente', 'tecnico')),
+    password_hash  VARCHAR(255) NOT NULL DEFAULT '',
     creado_en      TIMESTAMPTZ NOT NULL DEFAULT now(),
     actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE UNIQUE INDEX usuarios_email_unico ON usuarios (lower(email));
+CREATE UNIQUE INDEX IF NOT EXISTS usuarios_email_unico ON usuarios (lower(email));
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NOT NULL DEFAULT '';
 
 CREATE TABLE tickets (
     id             SERIAL PRIMARY KEY,

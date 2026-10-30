@@ -13,7 +13,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código de la app (HU-08: ahora incluye la capa de datos)
-COPY app.py repository.py repository_pg.py ./
+COPY app.py repository.py repository_pg.py ui.py ./
+COPY static ./static
 
 # Cambiar propietario y usar el usuario sin privilegios
 RUN chown -R appuser:appuser /app

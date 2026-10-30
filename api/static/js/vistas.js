@@ -166,7 +166,7 @@ export async function vistaTickets(raiz, avisar) {
     const actual = st.filtros.usuario_id;
     selUsr.replaceChildren(
       h("option", { value: "", text: "Todos los usuarios" }),
-      st.usuarios.map((u) => h("option", { value: String(u.id), text: u.nombre })));
+      ...st.usuarios.map((u) => h("option", { value: String(u.id), text: u.nombre })));
     selUsr.value = actual;
   }
 
@@ -177,7 +177,7 @@ export async function vistaTickets(raiz, avisar) {
       h("span", { class: "dato", text: `Abiertos: ${cuenta("abierto")}` }),
       h("span", { class: "dato", text: `En progreso: ${cuenta("en_progreso")}` }),
       h("span", { class: "dato", text: `Cerrados: ${cuenta("cerrado")}` }));
-    cuerpo.replaceChildren(st.tickets.map(fila));
+    cuerpo.replaceChildren(...st.tickets.map(fila));
     vacio.hidden = st.tickets.length > 0;
   }
 
@@ -313,7 +313,7 @@ export async function vistaUsuarios(raiz, avisar) {
     vacio);
 
   function pintar() {
-    cuerpo.replaceChildren(st.usuarios.map((u) => h("tr", { "data-id": u.id },
+    cuerpo.replaceChildren(...st.usuarios.map((u) => h("tr", { "data-id": u.id },
       h("td", { text: u.id }),
       h("td", { text: u.nombre }),
       h("td", { text: u.email }),

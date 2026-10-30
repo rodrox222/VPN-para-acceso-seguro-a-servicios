@@ -44,6 +44,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-helpdesk}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-helpdesk}
+      AUTH_SECRET: ${AUTH_SECRET:-secreto-super-seguro-compartido-en-ambos-servidores}
 
 networks:
   vpn_net:
