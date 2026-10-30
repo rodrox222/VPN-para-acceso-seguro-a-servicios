@@ -1,0 +1,8 @@
+{
+  "name": "tests-ui",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas de la interfaz web (HU19) con jsdom contra la API real",
+  "scripts": { "test": "node --test" },
+  "devDependencies": { "jsdom": "^25.0.0" }
+}

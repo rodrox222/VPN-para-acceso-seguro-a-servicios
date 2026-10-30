@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soporte técnico remoto — Grupo 35</title>
+  <link rel="stylesheet" href="/ui/css/estilos.css">
+</head>
+<body>
+  <header class="barra">
+    <h1>Soporte técnico remoto</h1>
+    <nav id="menu" aria-label="Principal" hidden>
+      <button type="button" data-vista="tickets">Tickets</button>
+      <button type="button" data-vista="usuarios" id="menu-usuarios">Usuarios</button>
+    </nav>
+    <div class="derecha">
+      <span id="sesion" class="sesion" hidden></span>
+      <button type="button" id="btn-salir" class="sec" hidden>Salir</button>
+      <div id="estado-conexion" class="estado" role="status" aria-live="polite">Comprobando conexión…</div>
+    </div>
+  </header>
+  <div id="aviso" class="aviso" role="alert" hidden></div>
+  <main id="contenido"></main>
+  <footer class="pie">Acceso protegido por VPN WireGuard · Grupo 35 · Servicios Telemáticos</footer>
+  <script type="module" src="/ui/js/main.js"></script>
+</body>
+</html>
