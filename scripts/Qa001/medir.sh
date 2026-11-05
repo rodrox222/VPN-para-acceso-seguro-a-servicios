@@ -96,7 +96,7 @@ comprobar sin_vpn "$IP_SIN_VPN" "$PUERTO_API_SIN_VPN"
 log "Conectividad previa OK en ambos escenarios"
 
 # ---------------------------------------------------------------------- salida
-OUT_BASE="${OUT_BASE:-$REPO/evidencias/QA001}"
+OUT_BASE="${OUT_BASE:-$DIR/resultados}"
 OUT="$OUT_BASE/${ENTORNO}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUT/raw/sin_vpn" "$OUT/raw/con_vpn"
 

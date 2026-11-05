@@ -162,11 +162,28 @@ def comparar(datos):
 
 
 def fmt(x, dec=2):
-    return "n/d" if x is None or (isinstance(x, float) and math.isnan(x)) else f"{x:.{dec}f}"
+    if x is None or (isinstance(x, float) and math.isnan(x)):
+        return "n/d"
+    if round(x, dec) == 0:
+        x = 0.0   # evita "-0.00"
+    return f"{x:.{dec}f}"
+
+
+def fmt_dif(x, dec=2):
+    """Diferencia absoluta con signo explícito (+0.32 / -155.50)."""
+    if x is None or (isinstance(x, float) and math.isnan(x)):
+        return "n/d"
+    if round(x, dec) == 0:
+        return f"{0:.{dec}f}"
+    return f"{x:+.{dec}f}"
 
 
 def fmt_pct(x):
-    return "n/d" if math.isnan(x) else f"{x:+.1f} %"
+    if math.isnan(x):
+        return "n/d"
+    if round(x, 1) == 0:
+        return "0.0 %"   # evita "-0.0 %"
+    return f"{x:+.1f} %"
 
 
 def escribir_csv(filas, destino):
@@ -189,7 +206,7 @@ def tabla_md(filas, claves):
         s, c = f["sin"], f["con"]
         out.append(f"| {f['nombre']} | {f['unidad']} | {fmt(s['media'])} ± {fmt(s['desv'])} | "
                    f"{fmt(c['media'])} ± {fmt(c['desv'])} | {fmt(s['p95'])} / {fmt(c['p95'])} | "
-                   f"{fmt(f['delta'])} | {fmt_pct(f['pct'])} |")
+                   f"{fmt_dif(f['delta'])} | {fmt_pct(f['pct'])} |")
     return "\n".join(out)
 
 
@@ -205,7 +222,7 @@ def lectura_rapida(filas, datos):
     r = por["ping_rtt"]
     if r["sin"]["n"] and r["con"]["n"]:
         out.append(f"- **Latencia (ping):** el RTT medio pasó de {fmt(r['sin']['media'])} ms a {fmt(r['con']['media'])} ms "
-                   f"({fmt(r['delta'])} ms, {fmt_pct(r['pct'])}).")
+                   f"({fmt_dif(r['delta'])} ms, {fmt_pct(r['pct'])}).")
     t = por["curl_total"]
     if t["sin"]["n"] and t["con"]["n"]:
         out.append(f"- **Tiempo de respuesta HTTP total:** de {fmt(t['sin']['media'])} ms a {fmt(t['con']['media'])} ms "
@@ -236,7 +253,7 @@ REFERENCIAS = """| Estudio | Qué comparó | Resultado reportado |
 
 def escribir_md(carpeta, filas, datos):
     entorno = (carpeta / "entorno.txt")
-    entorno_txt = entorno.read_text() if entorno.exists() else "(sin entorno.txt)"
+    entorno_txt = entorno.read_text(encoding="utf-8", errors="replace") if entorno.exists() else "(sin entorno.txt)"
     md = f"""# QA001 — Resultados de rendimiento con y sin VPN
 
 Carpeta de datos: `{carpeta.name}` · corridas: {datos['sin_vpn']['corridas']} (sin VPN) / {datos['con_vpn']['corridas']} (con VPN)
@@ -253,8 +270,7 @@ Carpeta de datos: `{carpeta.name}` · corridas: {datos['sin_vpn']['corridas']} (
 
 {tabla_md(filas, ("curl_connect", "curl_ttfb", "curl_total"))}
 
-Peticiones correctas: sin VPN {datos['sin_vpn']['curl_ok']}/{datos['sin_vpn']['curl_n']} ·
-con VPN {datos['con_vpn']['curl_ok']}/{datos['con_vpn']['curl_n']}
+Peticiones correctas: sin VPN {datos['sin_vpn']['curl_ok']}/{datos['sin_vpn']['curl_n']} · con VPN {datos['con_vpn']['curl_ok']}/{datos['con_vpn']['curl_n']}
 
 ## Throughput (iperf3)
 
@@ -273,7 +289,10 @@ con VPN {datos['con_vpn']['curl_ok']}/{datos['con_vpn']['curl_n']}
 {entorno_txt.strip()}
 ```
 """
-    (carpeta / "resumen.md").write_text(md)
+    # Normalizar saltos de línea: sin "\r" ni líneas en blanco dentro de las tablas
+    md = md.replace("\r\n", "\n").replace("\r", "\n")
+    with (carpeta / "resumen.md").open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(md)
 
 
 def graficos(carpeta, filas):
