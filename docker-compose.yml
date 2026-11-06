@@ -4,6 +4,9 @@ services:
   db:
     image: postgres:16-alpine
     container_name: api-db
+    command: ["postgres", "-c", "wal_level=logical"]
+    ports:
+      - "${DB_PORT:-5432}:5432"
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-helpdesk}

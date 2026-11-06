@@ -70,13 +70,16 @@ def _sembrar_usuarios_demo():
     for s in semillas:
         try:
             existente = repo.buscar_usuario_por_email(s["email"])
+            hash_clave = generate_password_hash(s["clave"])
             if not existente:
                 repo.crear_usuario({
                     "nombre": s["nombre"],
                     "email": s["email"],
                     "rol": s["rol"],
-                    "password_hash": generate_password_hash(s["clave"]),
+                    "password_hash": hash_clave,
                 })
+            elif not existente.get("password_hash"):
+                repo.actualizar_usuario(existente["id"], {"password_hash": hash_clave})
         except Exception:
             pass
 
